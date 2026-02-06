@@ -10,10 +10,13 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "dotenv": "^17.2.4",
     "expo": "~54.0.33",
     "expo-status-bar": "~3.0.9",
+    "firebase": "^12.9.0",
     "react": "19.1.0",
-    "react-native": "0.81.5"
+    "react-native": "0.81.5",
+    "react-native-dotenv": "^3.4.11"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
