@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -46,7 +45,6 @@ export default function SendToYieldAccountScreen({ navigation, route }: any) {
     const cleanedPhone = phoneNumber.replace(/\D/g, '');
     
     if (cleanedPhone.length !== 10) {
-      Alert.alert('Invalid Phone', 'Please enter a valid phone number');
       return;
     }
 
@@ -56,12 +54,10 @@ export default function SendToYieldAccountScreen({ navigation, route }: any) {
       const foundUser = await findUserByPhone(formattedPhone);
       
       if (!foundUser) {
-        Alert.alert('Not Found', 'This phone number is not registered with YieldWay');
         return;
       }
       
       if (foundUser.id === user?.id) {
-        Alert.alert('Error', 'You cannot send money to yourself');
         return;
       }
       
@@ -75,7 +71,6 @@ export default function SendToYieldAccountScreen({ navigation, route }: any) {
       console.log('   Preview:', previewData);
       
     } catch (error: any) {
-      Alert.alert('Error', error.message);
     } finally {
       setSearching(false);
     }
@@ -85,17 +80,14 @@ export default function SendToYieldAccountScreen({ navigation, route }: any) {
     const sendAmount = parseFloat(amount);
     
     if (isNaN(sendAmount) || sendAmount <= 0) {
-      Alert.alert('Invalid Amount');
       return;
     }
     
     if (!recipient) {
-      Alert.alert('Please search for a recipient first');
       return;
     }
     
     if (sendAmount > account.balance) {
-      Alert.alert('Insufficient Balance', `You only have $${account.balance.toFixed(2)} in this account`);
       return;
     }
 
@@ -114,12 +106,7 @@ export default function SendToYieldAccountScreen({ navigation, route }: any) {
         message += `\n\n✨ Created a new ${pool?.name} for ${recipient.firstName}!`;
       }
       
-      Alert.alert('Transfer Complete! 🎉', message, [
-        { text: 'Done', onPress: () => navigation.goBack() }
-      ]);
-      
     } catch (error: any) {
-      Alert.alert('Transfer Failed', error.message);
     } finally {
       setLoading(false);
     }
