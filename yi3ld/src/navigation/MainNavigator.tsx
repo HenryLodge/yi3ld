@@ -6,6 +6,7 @@ import DepositScreen from '../screens/DepositScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import OpenAccountScreen from '../screens/OpenAccountScreen';
 import { DashboardStackParamList, MainTabParamList } from './types';
+import SendMoneyScreen from '../screens/SendMoneyScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createNativeStackNavigator<DashboardStackParamList>();
@@ -16,6 +17,7 @@ function DashboardStack() {
       <Stack.Screen name="DashboardHome" component={DashboardScreen} />
       <Stack.Screen name="OpenAccount" component={OpenAccountScreen} />
       <Stack.Screen name="DepositScreen" component={DepositScreen} />
+      <Stack.Screen name="SendMoney" component={SendMoneyScreen} />
     </Stack.Navigator>
   );
 }

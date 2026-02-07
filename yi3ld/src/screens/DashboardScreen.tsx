@@ -134,9 +134,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                 <Ionicons name="swap-horizontal" size={18} color="#ffffff" />
                 <Text style={styles.actionButtonText}>Transfer</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} activeOpacity={0.6} onPress={() => navigation.navigate('DepositScreen')}>
+              <TouchableOpacity style={styles.actionButton} activeOpacity={0.6} onPress={() => navigation.navigate('SendMoney')}>
                 <Ionicons name="add-circle-outline" size={18} color="#ffffff" />
-                <Text style={styles.actionButtonText}>Add Money</Text>
+                <Text style={styles.actionButtonText}>Send Money</Text>
               </TouchableOpacity>
             </View>
           ) : (
