@@ -16,9 +16,43 @@ import { getUserAccounts, Account } from '../services/accounts';
 import { fundUserWallet } from '../services/aave';
 import { depositToAave } from '../services/aave';
 import { getPoolById } from '../utils/yieldPools';
+import { db } from '../../FirebaseConfig';
+import { collection, doc, getDocs, increment, query, serverTimestamp, updateDoc, where } from '@firebase/firestore';
 
 type DevFundingScreenProps = {
   navigation: any;
+};
+
+export const addMoneyToWaitingRoom = async (userId: string, amount: number): Promise<void> => {
+  try {
+    // Find the user's waiting room account
+    const accountsRef = collection(db, 'accounts');
+    const q = query(
+      accountsRef, 
+      where('userId', '==', userId),
+      where('type', '==', 'waiting-room')
+    );
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      throw new Error('No waiting room account found');
+    }
+    
+    // Get the first (should be only) waiting room account
+    const waitingRoomDoc = querySnapshot.docs[0];
+    const accountRef = doc(db, 'accounts', waitingRoomDoc.id);
+    
+    // Update the balance using Firebase increment
+    await updateDoc(accountRef, {
+      balance: increment(amount),
+      updatedAt: serverTimestamp(),
+    });
+    
+    console.log(`Added $${amount} to waiting room balance`);
+  } catch (error) {
+    console.error('Error adding money to waiting room:', error);
+    throw error;
+  }
 };
 
 export default function DevFundingScreen({ navigation }: DevFundingScreenProps) {
@@ -92,6 +126,7 @@ export default function DevFundingScreen({ navigation }: DevFundingScreenProps) 
         initialDeposit: increment(fundAmount),
         lastSynced: serverTimestamp()
       });
+      await addMoneyToWaitingRoom(user.id, -fundAmount);
       
       console.log('✅ Firebase updated');
       
@@ -114,7 +149,7 @@ export default function DevFundingScreen({ navigation }: DevFundingScreenProps) 
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>🧪 Dev Funding</Text>
+        <Text style={styles.headerTitle}>Waiting Room Transfer</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -260,14 +295,14 @@ export default function DevFundingScreen({ navigation }: DevFundingScreenProps) 
             
             {txHashes.fund && (
               <View style={styles.txStep}>
-                <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                <Ionicons name="checkmark-circle" size={20} color="#000000" />
                 <Text style={styles.txStepText}>USDC sent to wallet</Text>
               </View>
             )}
             
             {txHashes.deposit && (
               <View style={styles.txStep}>
-                <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                <Ionicons name="checkmark-circle" size={20} color="#000000" />
                 <Text style={styles.txStepText}>Deposited to Aave</Text>
               </View>
             )}
@@ -278,7 +313,7 @@ export default function DevFundingScreen({ navigation }: DevFundingScreenProps) 
 
         {step === 'success' && (
           <View style={styles.successContainer}>
-            <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
+            <Ionicons name="checkmark-circle" size={80} color="#000000" />
             <Text style={styles.successTitle}>Funding Complete!</Text>
             <Text style={styles.successSubtitle}>
               ${parseFloat(amount).toFixed(2)} USDC deposited to {selectedAccount?.name}
@@ -551,7 +586,7 @@ const styles = StyleSheet.create({
   },
   fundButton: {
     height: 56,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#000000',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
