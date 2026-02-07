@@ -3,10 +3,6 @@ import {
   PhoneAuthProvider,
   signInWithCredential
 } from 'firebase/auth';
-import { db } from '../../FirebaseConfig';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { createAccount } from './accounts';
-import { getUserAccounts } from './accounts';
 
 let verificationId: string | null = null;
 
@@ -36,11 +32,24 @@ export const verifyCode = async (code: string) => {
   }
 };
 
+
+
+
+
+
+import { db } from '../../FirebaseConfig';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { createAccount } from './accounts';
+import { getUserAccounts } from './accounts';
+
 export interface UserData {
   id: string;
   phoneNumber: string;
   firstName?: string;
   lastName?: string;
+  country?: string;
+  currency?: string;
+  currencySymbol?: string;
   createdAt?: any;
 }
 
@@ -73,6 +82,9 @@ export const createUserInFirestore = async (userData: UserData): Promise<void> =
       phoneNumber: userData.phoneNumber,
       firstName: userData.firstName,
       lastName: userData.lastName,
+      country: userData.country || 'US',
+      currency: userData.currency || 'USD',
+      currencySymbol: userData.currencySymbol || '$',
       createdAt: serverTimestamp(),
     });
     

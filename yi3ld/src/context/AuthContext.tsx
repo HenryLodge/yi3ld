@@ -6,6 +6,9 @@ interface User {
   phoneNumber: string;
   firstName?: string;
   lastName?: string;
+  country?: string;
+  currency?: string;
+  currencySymbol?: string;
 }
 
 interface AuthContextType {

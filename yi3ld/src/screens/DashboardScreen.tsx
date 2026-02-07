@@ -6,6 +6,7 @@ import { getUserAccounts, Account } from '../services/accounts';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { getCountryByCode, formatCurrency } from '../utils/countries';
 
 // Define the navigation types
 type DashboardStackParamList = {
@@ -32,6 +33,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   
   const waitingRoomAccount = accounts.find(acc => acc.type === 'waiting-room');
   const yieldingAccounts = accounts.filter(acc => acc.type !== 'waiting-room');
+  const userCountry = getCountryByCode(user?.country || 'US');
   
   const fetchAccounts = async () => {
     if (!user?.id) return;
@@ -65,9 +67,17 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   };
 
   const formatBalance = (amount: number) => {
-    return balanceVisible 
-      ? `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : '$•••••.••';
+    if (!balanceVisible) return '••••••';
+    
+    if (userCountry) {
+      return formatCurrency(amount, userCountry);
+    }
+    
+    // Fallback
+    return `$${amount.toLocaleString('en-US', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    })}`;
   };
 
   const formatAPY = (amount: number) => {

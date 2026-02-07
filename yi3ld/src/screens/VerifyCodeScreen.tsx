@@ -80,11 +80,11 @@ export default function VerifyCodeScreen({
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Verify</Text>
+            <Text style={styles.title}>verify</Text>
             <Logo></Logo>
           </View>
           <Text style={styles.subtitle}>
-            We sent a code to {phoneNumber}
+            we sent a code to {phoneNumber}
           </Text>
         </View>
 

@@ -72,17 +72,17 @@ export default function PhoneAuthScreen({ navigation }: PhoneAuthScreenProps) {
       <FirebaseRecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={auth.app.options}
-        attemptInvisibleVerification={false}
+        attemptInvisibleVerification={true}
       />
       
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>YieldWay</Text>
+            <Text style={styles.title}>yi3ld</Text>
             <Logo></Logo>
           </View>
           <Text style={styles.subtitle}>
-            F*ck banks, earn yield on your checking account
+            f*ck banks, earn yield on your checking account
           </Text>
         </View>
 
@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
     marginBottom: -10,
   },
   title: {
+    // fontFamily: 'Inter_600SemiBold',
     fontSize: 32,
     fontWeight: '600',
     color: '#000',
