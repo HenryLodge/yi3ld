@@ -150,3 +150,39 @@ export async function needsGas(address: string): Promise<boolean> {
   const balance = await getWalletBalance(address);
   return parseFloat(balance) < 0.001;
 }
+
+/**
+ * Send ETH from master wallet to user wallet (for gas)
+ */
+export async function fundWalletWithGas(
+  userWalletAddress: string,
+  ethAmount: number = 0.01
+): Promise<string> {
+  try {
+    console.log('🔵 Sending', ethAmount, 'ETH to', userWalletAddress);
+    
+    const privateKey = process.env.TEST_WALLET_PRIVATE_KEY;
+    if (!privateKey) {
+      throw new Error('TEST_WALLET_PRIVATE_KEY not found');
+    }
+    
+    const provider = new ethers.JsonRpcProvider(process.env.BASE_SEPOLIA_RPC_URL);
+    const masterWallet = new ethers.Wallet(privateKey, provider);
+    
+    // Send ETH
+    const tx = await masterWallet.sendTransaction({
+      to: userWalletAddress,
+      value: ethers.parseEther(ethAmount.toString())
+    });
+    
+    console.log('🔵 Gas funding tx sent:', tx.hash);
+    const receipt = await tx.wait();
+    console.log('✅ Gas funding confirmed');
+    
+    return receipt!.hash;
+    
+  } catch (error: any) {
+    console.error('❌ Error funding with gas:', error);
+    throw error;
+  }
+}
