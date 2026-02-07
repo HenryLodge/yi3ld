@@ -226,7 +226,10 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
 
     return (
       <Animated.View style={{ opacity: fadeAnim }}>
-        <Text style={styles.stepTitle}>Confirm Details</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.stepTitle}>Confirm Details</Text>
+          <Logo />
+        </View>
         <Text style={styles.stepSubtitle}>Review your account information</Text>
 
         <View style={styles.confirmCard}>

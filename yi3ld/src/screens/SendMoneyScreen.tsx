@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -15,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
 import { sendInternational, findUserByPhone } from '../services/internationalTransfer';
 import { getExchangeRate } from '../services/xrpl';
-import { getCountryByCode, formatCurrency } from '../utils/countries';
+import { getCountryByCode } from '../utils/countries';
 import { formatPhoneNumber } from '../utils/utilFunctions';
 
 export default function SendMoneyScreen({ navigation }: any) {
@@ -44,7 +43,6 @@ export default function SendMoneyScreen({ navigation }: any) {
     const cleanedPhone = phoneNumber.replace(/\D/g, '');
     
     if (cleanedPhone.length !== 10) {
-      Alert.alert('Invalid Phone', 'Please enter a valid phone number');
       return;
     }
 
@@ -54,12 +52,10 @@ export default function SendMoneyScreen({ navigation }: any) {
       const foundUser = await findUserByPhone(formattedPhone);
       
       if (!foundUser) {
-        Alert.alert('Not Found', 'This phone number is not registered with YieldWay');
         return;
       }
       
       if (foundUser.id === user?.id) {
-        Alert.alert('Error', 'You cannot send money to yourself');
         return;
       }
       
@@ -78,7 +74,6 @@ export default function SendMoneyScreen({ navigation }: any) {
       console.log('   Exchange rate:', rate);
       
     } catch (error: any) {
-      Alert.alert('Error', error.message);
     } finally {
       setSearching(false);
     }
@@ -88,12 +83,10 @@ export default function SendMoneyScreen({ navigation }: any) {
     const sendAmount = parseFloat(amount);
     
     if (isNaN(sendAmount) || sendAmount <= 0) {
-      Alert.alert('Invalid Amount');
       return;
     }
     
     if (!recipient) {
-      Alert.alert('Please search for a recipient first');
       return;
     }
 
@@ -107,7 +100,7 @@ export default function SendMoneyScreen({ navigation }: any) {
       
       const recipientCurrency = getCountryByCode(recipient.country);
       
-      Alert.alert(
+      console.log(
         'Transfer Complete! 🎉',
         `Sent ${userCountry?.currencySymbol}${sendAmount.toFixed(2)} to ${recipient.firstName}\n` +
         `They received ${recipientCurrency?.currencySymbol}${result.amountReceived.toFixed(2)}\n\n` +
@@ -116,9 +109,8 @@ export default function SendMoneyScreen({ navigation }: any) {
         `🔗 Powered by XRP Ledger`,
         [{ text: 'Done', onPress: () => navigation.goBack() }]
       );
-      
+      navigation.goBack();
     } catch (error: any) {
-      Alert.alert('Transfer Failed', error.message);
     } finally {
       setLoading(false);
     }
@@ -176,7 +168,7 @@ export default function SendMoneyScreen({ navigation }: any) {
                     {recipient.firstName} {recipient.lastName}
                   </Text>
                   <Text style={styles.recipientCountry}>
-                    {getCountryByCode(recipient.country)?.name} • {recipient.currency}
+                    {getCountryByCode(recipient.country)?.name} | {recipient.currency}
                   </Text>
                 </View>
               </View>
@@ -228,12 +220,6 @@ export default function SendMoneyScreen({ navigation }: any) {
 
                 <View style={styles.conversionDetails}>
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Exchange Rate</Text>
-                    <Text style={styles.detailValue}>
-                      1 {user?.currency} = {exchangeRate.toFixed(4)} {recipient.currency}
-                    </Text>
-                  </View>
-                  <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Transfer Fee</Text>
                     <Text style={styles.detailValue}>$0.00001</Text>
                   </View>
@@ -244,34 +230,10 @@ export default function SendMoneyScreen({ navigation }: any) {
                 </View>
 
                 <View style={styles.xrplBadge}>
-                  <Text style={styles.xrplText}>⚡ Powered by XRP Ledger</Text>
+                  <Text style={styles.xrplText}>Powered by XRPL</Text>
                 </View>
               </View>
             )}
-
-            <View style={styles.comparisonCard}>
-              <Text style={styles.comparisonTitle}>vs Traditional Banks</Text>
-              <View style={styles.comparisonRow}>
-                <View style={styles.comparisonItem}>
-                  <Text style={styles.comparisonLabel}>Our Fee</Text>
-                  <Text style={styles.comparisonValue}>$0.00001</Text>
-                </View>
-                <View style={styles.comparisonItem}>
-                  <Text style={styles.comparisonLabel}>Bank Fee</Text>
-                  <Text style={[styles.comparisonValue, styles.expensive]}>$25-50</Text>
-                </View>
-              </View>
-              <View style={styles.comparisonRow}>
-                <View style={styles.comparisonItem}>
-                  <Text style={styles.comparisonLabel}>Our Time</Text>
-                  <Text style={styles.comparisonValue}>3 seconds</Text>
-                </View>
-                <View style={styles.comparisonItem}>
-                  <Text style={styles.comparisonLabel}>Bank Time</Text>
-                  <Text style={[styles.comparisonValue, styles.expensive]}>3-5 days</Text>
-                </View>
-              </View>
-            </View>
           </>
         )}
       </ScrollView>
@@ -345,7 +307,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderWidth: 1,
     borderColor: '#e5e5e5',
-    borderRadius: 12,
+    borderRadius: 6,
     paddingHorizontal: 16,
     fontSize: 17,
     color: '#000',
@@ -355,7 +317,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     backgroundColor: '#000',
-    borderRadius: 12,
+    borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -364,7 +326,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
-    borderRadius: 12,
+    borderRadius: 6,
     padding: 16,
     marginTop: 12,
   },
@@ -394,13 +356,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fafafa',
-    borderRadius: 12,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: '#e5e5e5',
     paddingHorizontal: 16,
   },
   currencySymbol: {
-    fontSize: 24,
+    fontSize: 33,
     fontWeight: '600',
     color: '#000',
     marginRight: 8,
@@ -410,15 +372,16 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '600',
     color: '#000',
-    paddingVertical: 16,
+    paddingVertical: 13,
   },
   conversionCard: {
     backgroundColor: '#fafafa',
-    borderRadius: 16,
+    borderRadius: 6,
     padding: 20,
     borderWidth: 1,
     borderColor: '#e5e5e5',
     marginBottom: 16,
+    marginTop: -13,
   },
   conversionRow: {
     flexDirection: 'row',

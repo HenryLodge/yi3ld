@@ -66,14 +66,23 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
     fetchAccounts();
   };
 
-  const formatBalance = (amount: number) => {
+  const formatBalance = (amount: number, accountType?: string) => {
     if (!balanceVisible) return '••••••';
     
+    // Yielding accounts always show in USD (they're USDC-backed)
+    if (accountType && accountType !== 'waiting-room') {
+      return `$${amount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })}`;
+    }
+    
+    // Waiting room shows in user's currency
     if (userCountry) {
       return formatCurrency(amount, userCountry);
     }
     
-    // Fallback
+    // Fallback to USD
     return `$${amount.toLocaleString('en-US', { 
       minimumFractionDigits: 2, 
       maximumFractionDigits: 2 
@@ -107,7 +116,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
           </View>
           <View style={styles.dropdownRow}>
             <Text style={styles.dropdownLabel}>Balance</Text>
-            <Text style={styles.dropdownValue}>{formatBalance(account.balance)}</Text>
+            <Text style={styles.dropdownValue}>{formatBalance(account.balance, account.type)}</Text>
           </View>
           {account.type == 'waiting-room' && (
             <View style={styles.dropdownRow}>
@@ -141,7 +150,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
             </View>
           ) : (
             <View style={styles.dropdownActions}>
-              <TouchableOpacity style={styles.actionButton} activeOpacity={0.6}>
+              <TouchableOpacity style={styles.actionButton} activeOpacity={0.6} onPress={() => navigation.navigate('SendToYieldAccount', { account })}>
                 <Ionicons name="swap-horizontal" size={18} color="#ffffff" />
                 <Text style={styles.actionButtonText}>Transfer</Text>
               </TouchableOpacity>
@@ -207,7 +216,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                 </View>
                 <View style={styles.accountRight}>
                   <Text style={styles.accountBalance}>
-                    {formatBalance(waitingRoomAccount.balance || 0)}
+                    {formatBalance(waitingRoomAccount.balance || 0, 'waiting-room')}
                   </Text>
                   <Ionicons 
                     name={expandedAccountId === waitingRoomAccount.id ? "chevron-up" : "chevron-down"} 
@@ -251,7 +260,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                   </View>
                   <View style={styles.accountRight}>
                     <Text style={styles.accountBalance}>
-                      {formatBalance(account.balance)}
+                      {formatBalance(account.balance, 'yielding')}
                     </Text>
                     <Ionicons 
                       name={expandedAccountId === account.id ? "chevron-up" : "chevron-down"} 
