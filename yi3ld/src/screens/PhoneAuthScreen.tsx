@@ -82,7 +82,7 @@ export default function PhoneAuthScreen({ navigation }: PhoneAuthScreenProps) {
             <Logo></Logo>
           </View>
           <Text style={styles.subtitle}>
-            f*ck banks, earn yield on your checking account
+            ditch banks, earn high yield on your checking account
           </Text>
         </View>
 
@@ -133,14 +133,13 @@ const styles = StyleSheet.create({
     marginBottom: -10,
   },
   title: {
-    // fontFamily: 'Inter_600SemiBold',
     fontSize: 32,
     fontWeight: '600',
     color: '#000',
     marginBottom: 10,
   },
   subtitle: {
-    fontSize: 14.5,
+    fontSize: 12.95,
     color: '#666',
     lineHeight: 24,
   },
