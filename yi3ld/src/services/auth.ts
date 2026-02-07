@@ -42,6 +42,16 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { createAccount } from './accounts';
 import { getUserAccounts } from './accounts';
 
+// export interface UserData {
+//   id: string;
+//   phoneNumber: string;
+//   firstName?: string;
+//   lastName?: string;
+//   country?: string;
+//   currency?: string;
+//   currencySymbol?: string;
+//   createdAt?: any;
+// }
 export interface UserData {
   id: string;
   phoneNumber: string;
@@ -50,6 +60,9 @@ export interface UserData {
   country?: string;
   currency?: string;
   currencySymbol?: string;
+  walletAddress?: string; // Add this
+  encryptedPrivateKey?: string; // Add this
+  walletCreatedAt?: any; // Add this
   createdAt?: any;
 }
 

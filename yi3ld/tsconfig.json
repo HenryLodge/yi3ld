@@ -1,9 +1,30 @@
+// {
+//   "extends": "expo/tsconfig.base",
+//   "compilerOptions": {
+//     "strict": true,
+//     "paths": {
+//       "firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"],
+//     }
+//   }
+// }
+
+
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"],
+      "firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
     }
-  }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }

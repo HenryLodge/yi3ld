@@ -1,6 +1,15 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// interface User {
+//   id: string;
+//   phoneNumber: string;
+//   firstName?: string;
+//   lastName?: string;
+//   country?: string;
+//   currency?: string;
+//   currencySymbol?: string;
+// }
 interface User {
   id: string;
   phoneNumber: string;
@@ -9,6 +18,7 @@ interface User {
   country?: string;
   currency?: string;
   currencySymbol?: string;
+  walletAddress?: string; // Add this
 }
 
 interface AuthContextType {

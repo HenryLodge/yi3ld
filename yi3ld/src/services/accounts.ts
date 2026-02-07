@@ -11,7 +11,19 @@ import {
   increment,
   serverTimestamp 
 } from 'firebase/firestore';
+import { createUserWallet, getUserWalletAddress } from './wallet';
+import { getPoolById } from '../utils/yieldPools';
 
+// export interface Account {
+//   id: string;
+//   userId: string;
+//   name: string;
+//   accountNumber: string;
+//   balance: number;
+//   type: 'checking' | 'savings' | 'waiting-room';
+//   apy?: number;
+//   createdAt: Date;
+// }
 export interface Account {
   id: string;
   userId: string;
@@ -20,6 +32,10 @@ export interface Account {
   balance: number;
   type: 'checking' | 'savings' | 'waiting-room';
   apy?: number;
+  poolId?: string;
+  protocol?: string;
+  chain?: string;
+  walletAddress?: string; // Add this
   createdAt: Date;
 }
 
@@ -130,6 +146,56 @@ export const addMoneyToWaitingRoom = async (userId: string, amount: number): Pro
     console.log(`Added $${amount} to waiting room balance`);
   } catch (error) {
     console.error('Error adding money to waiting room:', error);
+    throw error;
+  }
+};
+
+export const createYieldAccount = async (
+  userId: string,
+  name: string,
+  poolId: string,
+  initialDeposit: number = 0
+): Promise<string> => {
+  try {
+    console.log('🔵 Creating yield account for user:', userId);
+    const pool = getPoolById(poolId);
+    if (!pool) throw new Error('Invalid pool');
+
+    // Create or get user's wallet
+    console.log('🔵 Checking for existing wallet...');
+    let walletAddress = await getUserWalletAddress(userId);
+    console.log('🔵 Existing wallet:', walletAddress);
+    
+    if (!walletAddress) {
+      console.log('🔵 No wallet found, creating new one...');
+      walletAddress = await createUserWallet(userId);
+      console.log('✅ Wallet created:', walletAddress);
+    } else {
+      console.log('✅ Using existing wallet:', walletAddress);
+    }
+
+    console.log('🔵 Creating account document...');
+    // Create account
+    const accountData = {
+      userId,
+      name,
+      accountNumber: generateAccountNumber(),
+      balance: initialDeposit,
+      type: pool.riskLevel === 'low' ? 'savings' : 'checking',
+      apy: pool.apy,
+      poolId: pool.id,
+      protocol: pool.protocol,
+      chain: pool.chain,
+      walletAddress,
+      createdAt: serverTimestamp(),
+    };
+
+    const docRef = await addDoc(collection(db, 'accounts'), accountData);
+    console.log('✅ Yield account created with ID:', docRef.id);
+    
+    return docRef.id;
+  } catch (error) {
+    console.error('❌ Error creating yield account:', error);
     throw error;
   }
 };
