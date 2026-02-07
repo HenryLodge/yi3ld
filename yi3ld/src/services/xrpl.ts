@@ -1,15 +1,9 @@
 import { getCountryByCode } from '../utils/countries';
 
-/**
- * Get exchange rate between two currencies
- * For hackathon: using mock rates
- * For production: would query XRPL order books or forex API
- */
 export async function getExchangeRate(
   fromCurrency: string,
   toCurrency: string
 ): Promise<number> {
-  // Mock exchange rates (realistic as of 2026)
   const rates: { [key: string]: { [key: string]: number } } = {
     'USD': { 'GBP': 0.79, 'EUR': 0.92, 'CAD': 1.36, 'MXN': 17.5, 'RUB': 92, 'CNY': 7.2, 'BRL': 5.0, 'AED': 3.67 },
     'GBP': { 'USD': 1.27, 'EUR': 1.17, 'CAD': 1.72, 'MXN': 22.15, 'RUB': 116, 'CNY': 9.11, 'BRL': 6.33, 'AED': 4.65 },
@@ -28,14 +22,9 @@ export async function getExchangeRate(
     return rates[fromCurrency][toCurrency];
   }
   
-  // Fallback: no conversion
   return 1.0;
 }
 
-/**
- * Send international payment (Mock for hackathon)
- * In production: would use actual XRPL
- */
 export async function sendInternationalPayment(
   senderCountry: string,
   recipientCountry: string,
@@ -51,29 +40,25 @@ export async function sendInternationalPayment(
   settlementTime: number;
 }> {
   try {
-    console.log('🌍 Processing international transfer (Mock XRPL)');
-    console.log(`   From: ${senderCountry} → To: ${recipientCountry}`);
-    console.log(`   Amount: ${amount}`);
+    console.log('Processing international transfer (Mock XRPL)');
+    console.log(`From: ${senderCountry} → To: ${recipientCountry}`);
+    console.log(`Amount: ${amount}`);
     
     const senderCurrency = getCountryByCode(senderCountry)?.currency || 'USD';
     const recipientCurrency = getCountryByCode(recipientCountry)?.currency || 'USD';
     
-    // Get exchange rate
     const rate = await getExchangeRate(senderCurrency, recipientCurrency);
     const amountReceived = amount * rate;
     
-    console.log(`   Rate: 1 ${senderCurrency} = ${rate} ${recipientCurrency}`);
-    console.log(`   Recipient receives: ${amountReceived.toFixed(2)} ${recipientCurrency}`);
+    console.log(`Rate: 1 ${senderCurrency} = ${rate} ${recipientCurrency}`);
+    console.log(`Recipient receives: ${amountReceived.toFixed(2)} ${recipientCurrency}`);
     
-    // Mock XRPL transaction hash
     const mockTxHash = Array.from({ length: 64 }, () => 
       Math.floor(Math.random() * 16).toString(16)
     ).join('').toUpperCase();
     
-    // Simulate 3-second XRPL settlement
+    // simulate 3-second
     await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    console.log('✅ Mock XRPL transfer complete');
     
     return {
       success: true,
@@ -91,16 +76,12 @@ export async function sendInternationalPayment(
   }
 }
 
-/**
- * Get XRPL transaction fee
- */
+
 export async function getXRPLFee(): Promise<number> {
   return 0.00001; // Mock fee
 }
 
-/**
- * Convert between currencies
- */
+
 export function convertCurrency(
   amount: number,
   fromCurrency: string,
