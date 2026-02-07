@@ -6,6 +6,7 @@ export type DashboardStackParamList = {
   DepositScreen: undefined;
   SendMoney: undefined;
   SendToYieldAccount: { account: Account };
+  DevFunding: undefined;
 };
 
 export type MainTabParamList = {

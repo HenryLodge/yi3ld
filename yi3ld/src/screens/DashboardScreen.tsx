@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { getCountryByCode, formatCurrency } from '../utils/countries';
-import { getAaveBalance } from '../services/aave';
+// import { getAaveBalance } from '../services/aave';
 import { detectAndSyncYieldAccounts } from '../services/accountDetection';
 
 // Define the navigation types
@@ -32,8 +32,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedAccountId, setExpandedAccountId] = useState<string | null>(null);
-  const [blockchainBalances, setBlockchainBalances] = useState<{ [accountId: string]: number }>({});
-  const [loadingBalances, setLoadingBalances] = useState(false);
+  // const [blockchainBalances, setBlockchainBalances] = useState<{ [accountId: string]: number }>({});
+  // const [loadingBalances, setLoadingBalances] = useState(false);
   const [syncing, setSyncing] = useState(false);
   
   const waitingRoomAccount = accounts.find(acc => acc.type === 'waiting-room');
@@ -176,7 +176,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
           
           {account.type === 'waiting-room' ? (
             <View style={styles.dropdownActions}>
-              <TouchableOpacity style={styles.actionButton} activeOpacity={0.6}>
+              <TouchableOpacity style={styles.actionButton} activeOpacity={0.6} onPress={() => navigation.navigate('DevFunding')}>
                 <Ionicons name="swap-horizontal" size={18} color="#ffffff" />
                 <Text style={styles.actionButtonText}>Transfer</Text>
               </TouchableOpacity>

@@ -13,10 +13,16 @@ const POOL_ABI = [
 ];
 
 // ERC20 ABI (for USDC approval and balance)
+// const ERC20_ABI = [
+//   "function approve(address spender, uint256 amount) returns (bool)",
+//   "function balanceOf(address account) view returns (uint256)",
+//   "function allowance(address owner, address spender) view returns (uint256)",
+// ];
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
   "function balanceOf(address account) view returns (uint256)",
   "function allowance(address owner, address spender) view returns (uint256)",
+  "function transfer(address to, uint256 amount) returns (bool)", // Add this
 ];
 
 /**
@@ -69,6 +75,69 @@ export async function getAaveBalance(walletAddress: string): Promise<number> {
 /**
  * Deposit USDC to Aave
  */
+// export async function depositToAave(
+//   userId: string,
+//   amount: number
+// ): Promise<string> {
+//   try {
+//     console.log('🔵 Starting Aave deposit for amount:', amount);
+    
+//     // Get user's wallet
+//     const wallet = await getUserWallet(userId);
+//     if (!wallet) {
+//       throw new Error('User wallet not found');
+//     }
+    
+//     console.log('🔵 Using wallet:', wallet.address);
+    
+//     // Check USDC balance
+//     const usdcBalance = await getUSDCBalance(wallet.address);
+//     console.log('🔵 USDC balance:', usdcBalance);
+    
+//     if (usdcBalance < amount) {
+//       throw new Error(`Insufficient USDC. Have ${usdcBalance}, need ${amount}`);
+//     }
+    
+//     // Convert amount to proper units (USDC has 6 decimals)
+//     const amountInUnits = ethers.parseUnits(amount.toString(), 6);
+//     console.log('🔵 Amount in units:', amountInUnits.toString());
+    
+//     // Step 1: Approve Aave to spend USDC
+//     console.log('🔵 Step 1: Approving Aave to spend USDC...');
+//     const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, wallet);
+    
+//     const approveTx = await usdcContract.approve(AAVE_POOL_ADDRESS, amountInUnits);
+//     console.log('🔵 Approve tx sent:', approveTx.hash);
+    
+//     const approveReceipt = await approveTx.wait();
+//     console.log('✅ Approve confirmed:', approveReceipt.hash);
+    
+//     // Step 2: Deposit to Aave
+//     console.log('🔵 Step 2: Depositing to Aave...');
+//     const aavePool = new ethers.Contract(AAVE_POOL_ADDRESS, POOL_ABI, wallet);
+    
+//     const depositTx = await aavePool.supply(
+//       USDC_ADDRESS,        // asset (USDC)
+//       amountInUnits,       // amount
+//       wallet.address,      // onBehalfOf (deposit for yourself)
+//       0                    // referralCode (0 = none)
+//     );
+//     console.log('🔵 Deposit tx sent:', depositTx.hash);
+    
+//     const depositReceipt = await depositTx.wait();
+//     console.log('✅ Deposit confirmed:', depositReceipt.hash);
+    
+//     // Step 3: Verify deposit worked
+//     const aaveBalance = await getAaveBalance(wallet.address);
+//     console.log('✅ New Aave balance:', aaveBalance);
+    
+//     return depositReceipt.hash;
+    
+//   } catch (error: any) {
+//     console.error('❌ Error depositing to Aave:', error);
+//     throw error;
+//   }
+// }
 export async function depositToAave(
   userId: string,
   amount: number
@@ -96,17 +165,36 @@ export async function depositToAave(
     const amountInUnits = ethers.parseUnits(amount.toString(), 6);
     console.log('🔵 Amount in units:', amountInUnits.toString());
     
-    // Step 1: Approve Aave to spend USDC
-    console.log('🔵 Step 1: Approving Aave to spend USDC...');
+    // Step 1: Check current allowance
     const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, wallet);
+    const currentAllowance = await usdcContract.allowance(wallet.address, AAVE_POOL_ADDRESS);
+    console.log('🔵 Current allowance:', ethers.formatUnits(currentAllowance, 6));
     
-    const approveTx = await usdcContract.approve(AAVE_POOL_ADDRESS, amountInUnits);
-    console.log('🔵 Approve tx sent:', approveTx.hash);
+    // Step 2: Approve Aave to spend USDC (only if needed)
+    if (currentAllowance < amountInUnits) {
+      console.log('🔵 Step 1: Approving Aave to spend USDC...');
+      
+      // Approve a large amount to avoid re-approving each time
+      const approvalAmount = ethers.parseUnits('1000000', 6); // 1M USDC approval
+      
+      const approveTx = await usdcContract.approve(AAVE_POOL_ADDRESS, approvalAmount);
+      console.log('🔵 Approve tx sent:', approveTx.hash);
+      
+      const approveReceipt = await approveTx.wait();
+      console.log('✅ Approve confirmed:', approveReceipt!.hash);
+      
+      // Wait a bit longer for the approval to propagate
+      console.log('⏳ Waiting for approval to propagate...');
+      await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds
+      
+      // Verify approval worked
+      const newAllowance = await usdcContract.allowance(wallet.address, AAVE_POOL_ADDRESS);
+      console.log('✅ New allowance:', ethers.formatUnits(newAllowance, 6));
+    } else {
+      console.log('✅ Already approved, skipping approval step');
+    }
     
-    const approveReceipt = await approveTx.wait();
-    console.log('✅ Approve confirmed:', approveReceipt.hash);
-    
-    // Step 2: Deposit to Aave
+    // Step 3: Deposit to Aave
     console.log('🔵 Step 2: Depositing to Aave...');
     const aavePool = new ethers.Contract(AAVE_POOL_ADDRESS, POOL_ABI, wallet);
     
@@ -119,13 +207,13 @@ export async function depositToAave(
     console.log('🔵 Deposit tx sent:', depositTx.hash);
     
     const depositReceipt = await depositTx.wait();
-    console.log('✅ Deposit confirmed:', depositReceipt.hash);
+    console.log('✅ Deposit confirmed:', depositReceipt!.hash);
     
-    // Step 3: Verify deposit worked
+    // Step 4: Verify deposit worked
     const aaveBalance = await getAaveBalance(wallet.address);
     console.log('✅ New Aave balance:', aaveBalance);
     
-    return depositReceipt.hash;
+    return depositReceipt!.hash;
     
   } catch (error: any) {
     console.error('❌ Error depositing to Aave:', error);
@@ -210,6 +298,40 @@ export async function getAaveAPY(poolId: string): Promise<number> {
  * Transfer USDC from master wallet to user wallet
  * (For hackathon - sending test USDC to user wallets)
  */
+// export async function fundUserWallet(
+//   userWalletAddress: string,
+//   amount: number
+// ): Promise<string> {
+//   try {
+//     console.log('🔵 Funding user wallet with', amount, 'USDC');
+    
+//     // Get master wallet (from .env)
+//     const privateKey = process.env.EXPO_PUBLIC_TEST_WALLET_PRIVATE_KEY;
+//     if (!privateKey) {
+//       throw new Error('EXPO_PUBLIC_TEST_WALLET_PRIVATE_KEY not found');
+//     }
+    
+//     const provider = getProvider();
+//     const masterWallet = new ethers.Wallet(privateKey, provider);
+    
+//     // Create USDC contract instance
+//     const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, masterWallet);
+    
+//     // Transfer USDC
+//     const amountInUnits = ethers.parseUnits(amount.toString(), 6);
+//     const tx = await usdcContract.transfer(userWalletAddress, amountInUnits);
+    
+//     console.log('🔵 Transfer tx sent:', tx.hash);
+//     const receipt = await tx.wait();
+//     console.log('✅ Transfer confirmed:', receipt.hash);
+    
+//     return receipt.hash;
+    
+//   } catch (error: any) {
+//     console.error('❌ Error funding wallet:', error);
+//     throw error;
+//   }
+// }
 export async function fundUserWallet(
   userWalletAddress: string,
   amount: number
@@ -217,27 +339,41 @@ export async function fundUserWallet(
   try {
     console.log('🔵 Funding user wallet with', amount, 'USDC');
     
-    // Get master wallet (from .env)
-    const privateKey = process.env.TEST_WALLET_PRIVATE_KEY;
+    const privateKey = process.env.EXPO_PUBLIC_TEST_WALLET_PRIVATE_KEY;
     if (!privateKey) {
-      throw new Error('TEST_WALLET_PRIVATE_KEY not found');
+      throw new Error('EXPO_PUBLIC_TEST_WALLET_PRIVATE_KEY not found in .env');
     }
     
     const provider = getProvider();
     const masterWallet = new ethers.Wallet(privateKey, provider);
     
-    // Create USDC contract instance
+    console.log('🔵 Master wallet:', masterWallet.address);
+    console.log('🔵 Recipient:', userWalletAddress);
+    console.log('🔵 Amount:', amount, 'USDC');
+    
+    // Create USDC contract with signer
     const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, masterWallet);
+    
+    // Check master wallet has enough USDC
+    const balance = await usdcContract.balanceOf(masterWallet.address);
+    const balanceNumber = parseFloat(ethers.formatUnits(balance, 6));
+    console.log('🔵 Master USDC balance:', balanceNumber);
+    
+    if (balanceNumber < amount) {
+      throw new Error(`Insufficient USDC in dev wallet. Have ${balanceNumber}, need ${amount}`);
+    }
     
     // Transfer USDC
     const amountInUnits = ethers.parseUnits(amount.toString(), 6);
+    console.log('🔵 Transferring', amountInUnits.toString(), 'units');
+    
     const tx = await usdcContract.transfer(userWalletAddress, amountInUnits);
     
     console.log('🔵 Transfer tx sent:', tx.hash);
     const receipt = await tx.wait();
-    console.log('✅ Transfer confirmed:', receipt.hash);
+    console.log('✅ Transfer confirmed:', receipt!.hash);
     
-    return receipt.hash;
+    return receipt!.hash;
     
   } catch (error: any) {
     console.error('❌ Error funding wallet:', error);

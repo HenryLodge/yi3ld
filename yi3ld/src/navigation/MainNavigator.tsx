@@ -8,6 +8,7 @@ import OpenAccountScreen from '../screens/OpenAccountScreen';
 import { DashboardStackParamList, MainTabParamList } from './types';
 import SendMoneyScreen from '../screens/SendMoneyScreen';
 import SendToYieldAccountScreen from '../screens/SendToYieldAccountScreen';
+import DevFundingScreen from '../screens/DevFundingScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createNativeStackNavigator<DashboardStackParamList>();
@@ -20,6 +21,7 @@ function DashboardStack() {
       <Stack.Screen name="DepositScreen" component={DepositScreen} />
       <Stack.Screen name="SendMoney" component={SendMoneyScreen} />
       <Stack.Screen name="SendToYieldAccount" component={SendToYieldAccountScreen} />
+      <Stack.Screen name="DevFunding" component={DevFundingScreen} />
     </Stack.Navigator>
   );
 }
