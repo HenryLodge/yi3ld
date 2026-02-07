@@ -34,11 +34,11 @@ export const YIELD_POOLS: YieldPool[] = [
     contractAddress: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'
   },
   {
-    id: 'aave-base-balanced',
-    name: 'Balanced',
+    id: 'aave-usdc',
+    name: 'AAVE USDC',
     protocol: 'Aave V3',
     chain: 'Base',
-    apy: 7.2,
+    apy: 4.52,
     tvl: 150000000,
     riskLevel: 'low',
     description: 'Best balance of yield and security',

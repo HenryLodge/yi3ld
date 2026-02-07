@@ -31,7 +31,7 @@ const accountTypes = [
     icon: 'shield-outline',
   },
   {
-    id: 'aave-base-balanced',
+    id: 'aave-usdc',
     name: 'Sentora PYUSD',
     description: 'Best balance of yield and security',
     features: ['6.48% APY', 'Low fees', 'Coinbase-backed'],

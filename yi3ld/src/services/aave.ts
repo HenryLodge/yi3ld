@@ -195,7 +195,7 @@ export async function getAaveAPY(poolId: string): Promise<number> {
   // For hackathon: return mock based on pool
   const mockAPYs: { [key: string]: number } = {
     'aave-eth-conservative': 3.5,
-    'aave-base-balanced': 7.2,
+    'aave-usdc': 4.52,
     'morpho-aggressive': 9.8,
   };
   
@@ -264,7 +264,7 @@ export async function getAllAavePositions(walletAddress: string): Promise<{
     const aTokenMap = [
       {
         aTokenAddress: '0xf53B60F4006cab2b3C4688ce41fD5362427A2A66', // aUSDC Base Sepolia
-        poolId: 'aave-base-balanced',
+        poolId: 'aave-usdc',
         decimals: 6
       },
       // Add more aTokens as you support more pools
