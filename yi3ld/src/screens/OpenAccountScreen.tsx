@@ -554,25 +554,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -591,6 +572,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
 import { createYieldAccount } from '../services/accounts';
+import Logo from '../components/Logo';
 
 type OpenAccountScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -687,17 +669,8 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
       );
 
       console.log('✅ Account created with ID:', accountId);
+      navigation.goBack();
 
-      Alert.alert(
-        'Success!',
-        'Your account has been created',
-        [
-          {
-            text: 'Done',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
     } catch (error: any) {
       console.error('❌ Create account error:', error);
       Alert.alert('Error', error.message || 'Failed to create account');
@@ -708,7 +681,11 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
 
   const renderSelectStep = () => (
     <Animated.View style={{ opacity: fadeAnim }}>
-      <Text style={styles.stepTitle}>Choose Account Type</Text>
+      {/* <Text style={styles.stepTitle}>Choose Account Type</Text> */}
+      <View style={styles.titleRow}>
+        <Text style={styles.stepTitle}>Choose Account Type</Text>
+        <Logo />
+      </View>
       <Text style={styles.stepSubtitle}>Select the type of account you'd like to open</Text>
 
       <View style={styles.accountTypesList}>
@@ -730,7 +707,7 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
             <View style={styles.featuresList}>
               {type.features.map((feature, index) => (
                 <View key={index} style={styles.featureItem}>
-                  <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                  <Ionicons name="checkmark-circle" size={16} color="#000000" />
                   <Text style={styles.featureText}>{feature}</Text>
                 </View>
               ))}
@@ -746,7 +723,10 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
     
     return (
       <Animated.View style={{ opacity: fadeAnim }}>
-        <Text style={styles.stepTitle}>Account Details</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.stepTitle}>Account Details</Text>
+          <Logo />
+        </View>
         <Text style={styles.stepSubtitle}>Customize your {selectedAccountType?.name}</Text>
 
         <View style={styles.form}>
@@ -899,6 +879,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#000',
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0,
+  },
   placeholder: {
     width: 40,
   },
@@ -924,7 +909,7 @@ const styles = StyleSheet.create({
   },
   accountTypeCard: {
     backgroundColor: '#fafafa',
-    borderRadius: 16,
+    borderRadius: 7,
     padding: 20,
     borderWidth: 1,
     borderColor: '#e5e5e5',
@@ -985,7 +970,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderWidth: 1,
     borderColor: '#e5e5e5',
-    borderRadius: 12,
+    borderRadius: 6,
     paddingHorizontal: 16,
     fontSize: 17,
     color: '#000',
@@ -1016,7 +1001,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     backgroundColor: '#000',
-    borderRadius: 12,
+    borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1029,7 +1014,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     backgroundColor: '#f0f0f0',
-    borderRadius: 12,
+    borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1043,7 +1028,7 @@ const styles = StyleSheet.create({
   },
   confirmCard: {
     backgroundColor: '#fafafa',
-    borderRadius: 16,
+    borderRadius: 6,
     padding: 20,
     borderWidth: 1,
     borderColor: '#e5e5e5',

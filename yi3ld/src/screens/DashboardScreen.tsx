@@ -90,7 +90,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
     if (account.type === 'waiting-room') {
       return `${formatAPY(account.apy || 0) || 0}% APY`;
     }
-    return account.accountNumber;
+    return account.apy ? `${formatAPY(account.apy)}% APY` : 'No APY';
   };
 
   const toggleAccountExpand = (accountId: string) => {
