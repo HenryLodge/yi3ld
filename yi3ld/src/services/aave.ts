@@ -2,9 +2,9 @@ import { ethers } from 'ethers';
 import { getUserWallet } from './wallet';
 
 // Contract addresses from .env
-const AAVE_POOL_ADDRESS = process.env.AAVE_POOL_ADDRESS || '0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b';
-const USDC_ADDRESS = process.env.USDC_ADDRESS || '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
-const AUSDC_ADDRESS = process.env.AUSDC_ADDRESS || '0x4e65fE4DbA92790696d040ac24Aa414708F5c0AB';
+const AAVE_POOL_ADDRESS = '0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b';
+const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+const AUSDC_ADDRESS = '0xf53B60F4006cab2b3C4688ce41fD5362427A2A66';
 
 // Aave Pool ABI (only the functions we need)
 const POOL_ABI = [
