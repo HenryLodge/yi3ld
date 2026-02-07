@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } 
 import { Entypo, Ionicons, FontAwesome6, FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
 import { addMoneyToWaitingRoom, getUserAccounts, Account } from '../services/accounts';
+import { getCountryByCode, formatCurrency } from '../utils/countries';
 
 export default function DepositScreen() {
   const { user } = useAuth();
@@ -13,6 +14,7 @@ export default function DepositScreen() {
   const [showDropdown, setShowDropdown] = useState(false);
   
   const waitingRoomAccount = accounts.find(acc => acc.type === 'waiting-room');
+  const userCountry = getCountryByCode(user?.country || 'US');
 
   const fetchAccounts = async () => {
     if (!user?.id) return;
@@ -46,10 +48,18 @@ export default function DepositScreen() {
   }, [user?.id]);
 
   const formatBalance = (amount: number) => {
-    return balanceVisible 
-      ? `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : '$••••.••';
-  };
+      if (!balanceVisible) return '••••••';
+      
+      if (userCountry) {
+        return formatCurrency(amount, userCountry);
+      }
+      
+      // Fallback
+      return `$${amount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })}`;
+    };
 
   const temp = async () => {
     if (!user?.id) return;
