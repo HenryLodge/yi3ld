@@ -77,7 +77,7 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
       return;
     }
     
-    const deposit = parseFloat(initialDeposit);
+    const deposit = 0;
     if (isNaN(deposit) || deposit < 0) {
       Alert.alert('Invalid Amount', 'Please enter a valid initial deposit amount');
       return;
@@ -186,7 +186,7 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
             />
           </View>
 
-          <View style={styles.inputContainer}>
+          {/* <View style={styles.inputContainer}>
             <Text style={styles.label}>Initial Deposit</Text>
             <View style={styles.currencyInputWrapper}>
               <Text style={styles.currencySymbol}>$</Text>
@@ -199,7 +199,7 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
                 keyboardType="decimal-pad"
               />
             </View>
-          </View>
+          </View> */}
 
           <View style={styles.buttonGroup}>
             <TouchableOpacity
@@ -241,12 +241,12 @@ export default function OpenAccountScreen({ navigation }: OpenAccountScreenProps
             <Text style={styles.confirmLabel}>Account Name</Text>
             <Text style={styles.confirmValue}>{accountName}</Text>
           </View>
-          <View style={styles.confirmRow}>
+          {/* <View style={styles.confirmRow}>
             <Text style={styles.confirmLabel}>Initial Deposit</Text>
             <Text style={styles.confirmValue}>
               ${deposit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Text>
-          </View>
+          </View> */}
           <View style={styles.confirmRow}>
             <Text style={styles.confirmLabel}>APY</Text>
             <Text style={styles.confirmValue}>{selectedAccountType?.features[0]}</Text>

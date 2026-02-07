@@ -7,6 +7,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { getCountryByCode, formatCurrency } from '../utils/countries';
+import { getAaveBalance } from '../services/aave';
+import { detectAndSyncYieldAccounts } from '../services/accountDetection';
 
 // Define the navigation types
 type DashboardStackParamList = {
@@ -30,6 +32,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedAccountId, setExpandedAccountId] = useState<string | null>(null);
+  const [blockchainBalances, setBlockchainBalances] = useState<{ [accountId: string]: number }>({});
+  const [loadingBalances, setLoadingBalances] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   
   const waitingRoomAccount = accounts.find(acc => acc.type === 'waiting-room');
   const yieldingAccounts = accounts.filter(acc => acc.type !== 'waiting-room');
@@ -57,13 +62,45 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
     }
   };
 
+  const syncWithBlockchain = async () => {
+    if (!user?.id || !user?.walletAddress) return;
+    
+    setSyncing(true);
+    try {
+      console.log('🔄 Syncing with blockchain...');
+      
+      // Auto-detect and sync all accounts
+      const result = await detectAndSyncYieldAccounts(user.id);
+      
+      if (result.accountsCreated > 0) {
+        console.log(`✨ Created ${result.accountsCreated} new accounts`);
+      }
+      
+      if (result.accountsUpdated > 0) {
+        console.log(`🔄 Updated ${result.accountsUpdated} accounts`);
+      }
+      
+      // Refresh accounts to show updates
+      await fetchAccounts();
+      
+      console.log('✅ Sync complete');
+      
+    } catch (error) {
+      console.error('Sync error:', error);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   useEffect(() => {
     fetchAccounts();
+    syncWithBlockchain();
   }, [user?.id]);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchAccounts();
+    syncWithBlockchain();
   };
 
   const formatBalance = (amount: number, accountType?: string) => {
@@ -273,6 +310,48 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
               </View>
             ))
           )}
+          {/* {yieldingAccounts.map((account) => {
+            const blockchainBalance = blockchainBalances[account.id];
+            const showBlockchain = blockchainBalance !== undefined;
+            
+            return (
+              <View key={account.id}>
+                <TouchableOpacity 
+                  style={styles.accountCard}
+                  activeOpacity={0.7}
+                  onPress={() => toggleAccountExpand(account.id)}
+                >
+                  <View style={styles.accountInfo}>
+                    <Text style={styles.accountName}>{account.name}</Text>
+                    <Text style={styles.accountNumber}>
+                      {account.protocol} • {account.chain}
+                    </Text>
+                  </View>
+                  <View style={styles.accountRight}>
+                    <View style={styles.balanceContainer}>
+                      <Text style={styles.accountBalance}>
+                        {showBlockchain 
+                          ? formatBalance(blockchainBalance) 
+                          : formatBalance(account.balance)}
+                      </Text>
+                      {showBlockchain && blockchainBalance !== account.balance && (
+                        <Text style={styles.blockchainBadge}>
+                          On-chain ✓
+                        </Text>
+                      )}
+                    </View>
+                    <Text style={styles.accountNumber}>{account.apy}% APY</Text>
+                    <Ionicons 
+                      name={expandedAccountId === account.id ? "chevron-up" : "chevron-down"} 
+                      size={20} 
+                      color="#999" 
+                    />
+                  </View>
+                </TouchableOpacity>
+                {expandedAccountId === account.id && renderAccountDropdown(account)}
+              </View>
+            );
+          })} */}
         </View>
       </ScrollView>
     </View>
@@ -457,5 +536,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#ffffff',
+  },
+  balanceContainer: {
+    alignItems: 'flex-end',
+  },
+  blockchainBadge: {
+    fontSize: 11,
+    color: '#4CAF50',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  loadingBalances: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  loadingText: {
+    fontSize: 13,
+    color: '#666',
   },
 });

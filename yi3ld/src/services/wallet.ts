@@ -118,7 +118,7 @@ export async function getUserWallet(userId: string): Promise<ethers.Wallet | nul
     const privateKey = decryptPrivateKey(userData.encryptedPrivateKey);
     
     // Create wallet instance
-    const provider = new ethers.JsonRpcProvider(process.env.BASE_SEPOLIA_RPC_URL);
+    const provider = new ethers.JsonRpcProvider(process.env.EXPO_PUBLIC_BASE_SEPOLIA_RPC_URL);
     const wallet = new ethers.Wallet(privateKey, provider);
     
     return wallet;
