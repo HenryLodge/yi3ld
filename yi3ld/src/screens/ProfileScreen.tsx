@@ -26,7 +26,7 @@ export default function ProfileScreen() {
         <Text style={styles.label}>Last Name</Text>
         <Text style={styles.value}>{user?.lastName}</Text>
         <Text style={styles.label}>Country</Text>
-        <Text style={styles.value}>{user?.country}</Text>
+        <Text style={styles.value}>{user?.country} ({user?.currencySymbol})</Text>
         <Text style={styles.label}>Phone Number</Text>
         <Text style={styles.value}>{formatPhoneNumberDisplay(user?.phoneNumber)}</Text>
 
